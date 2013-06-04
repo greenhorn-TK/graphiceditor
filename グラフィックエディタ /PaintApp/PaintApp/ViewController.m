@@ -7,9 +7,6 @@
 //
 
 #import "ViewController.h"
-#import "ToolAreaView.h"
-
-@class ToolAreaView;
 
 @interface ViewController ()
 
@@ -17,15 +14,25 @@
 
 @implementation ViewController
 @synthesize canvas;
+@synthesize toolView;
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
-    
     CGRect frame = CGRectMake(0, 0, 320, 320);
     self.canvas = [[DrawingCanvasView alloc] initWithFrame:frame];
     [self.view addSubview:canvas];
+    
+    
+    
+    //ツールビューを配置
+	UIViewController* vc = [[UIViewController alloc]
+							  initWithNibName:@"ToolAreaView" bundle:nil];
+	self.toolView = (ToolAreaView*)vc.view;
+	self.toolView.delegate = self;
+	self.toolView.frame = CGRectMake(0, 320, 320, 160);
+	[self.view addSubview:toolView];
 }
 
 - (void)didReceiveMemoryWarning
@@ -47,6 +54,11 @@
 /******************************
  *ToolAreaViewデリゲートメソッド実装
  ******************************/
+
+- (void)viewDidUnload
+{
+    [super viewDidUnload];
+}
  
 //消去
 - (void)toolAreaViewClear:(ToolAreaView *)toolView
@@ -66,22 +78,23 @@
     canvas.drawColor = color;
 }
 
+//ツール選択
 - (void)toolAreaViewToolSelect:(ToolAreaView *)toolView Tool:(int)toolnum
 {
     canvas.drawType = toolnum;
 }
 
-//ツール選択
+//ツール読み込み
 - (void)toolAreaViewLoad:(ToolAreaView *)toolView
 {
-    //
+    //Documentsディレクトリのパスを取得
     NSArray* path_tbl = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,
                                                             NSUserDomainMask,
                                                             YES);
     NSString* docPath = [path_tbl objectAtIndex:0];
     NSString* savePath = [NSString stringWithFormat:@"%@/%@", docPath, @"canvas_image.png"];
     
-    //
+    //保存パスからUIImageを作成
     UIImage* image = [[UIImage alloc] initWithContentsOfFile:savePath];
     if (image) {
         
@@ -100,20 +113,17 @@
 //保存
 - (void)toolAreaViewSave:(ToolAreaView *)toolView
 {
+	NSArray* path_tbl;
+    NSString *docPath = [path_tbl objectAtIndex:0];
+    NSString *savePath = [NSString stringWithFormat:@"%@/%@",
+                          docPath,
+                          @"canvas_image.png"];
+    
     //グラフィックコンテキストをpngデータに変換
     CGImageRef cgImage = CGBitmapContextCreateImage(canvas.drawContext);
     UIImage *image = [UIImage imageWithCGImage:cgImage];
     CGImageRelease(cgImage);
     NSData *data = UIImagePNGRepresentation(image);
-    
-    //ディレクトリのパス
-    NSArray *path_tbl = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,
-                                                            NSUserDomainMask,
-                                                            YES);
-    NSString *docPath = [path_tbl objectAtIndex:0];
-    NSString *savePath = [NSString stringWithFormat:@"%@/%@",
-                          docPath,
-                          @"canvas_image.png"];
     
     //保存
     [data writeToFile:savePath atomically:YES];

@@ -35,7 +35,7 @@
 - (IBAction)saveAction:(id)sender;
 
 //パレット
-@property (weak, nonatomic) IBOutlet UIButton* colorPaletBaseView;
+@property (weak, nonatomic) IBOutlet UIView* colorPalettBaseView;
 
 //ペンサイズ
 @property (weak, nonatomic) IBOutlet UISlider* penSizeSlider;
@@ -48,9 +48,9 @@
                   BaseRGBColor:(UIColor *)color;
 @end
 
-/*
+/*****************
  *デリゲートメソッド
- */
+ *****************/
  
 @protocol ToolAreaViewDelegate<NSObject>
 
@@ -63,7 +63,14 @@
 //セーブ
 - (void)toolAreaViewSave:(ToolAreaView *)toolView;
 
+//読み込み
+-(void)toolAreaViewLoad:(ToolAreaView*)toolview;
+
+
+//描画色設定
+- (void)toolAreaViewDrawColor:(ToolAreaView *)toolView DrawColor:(UIColor *)color;
+
 //ペンサイズ
-- (void)toolAreaViewDrawColor:(ToolAreaView *)toolView PenSize:(float)penSize;
+-(void)toolAreaViewPenSize:(ToolAreaView*)toolview PenSize:(float)pensize;
 
 @end

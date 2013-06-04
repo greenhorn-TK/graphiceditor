@@ -8,6 +8,7 @@
 
 #import "ToolAreaView.h"
 #import "ViewController.h"
+#import "ColorPalettView.h"
 
 @class ViewController;
 
@@ -28,7 +29,7 @@
 @synthesize clearButton;
 @synthesize loadButton;
 @synthesize saveButton;
-@synthesize colorPaletBaseView;
+@synthesize colorPalettBaseView;
 @synthesize penSizeSlider;
 
 //nibファイル読込み時
@@ -39,12 +40,12 @@
     CAGradientLayer* graLayer = [CAGradientLayer layer];
     graLayer.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
     graLayer.startPoint = CGPointMake(0.5, 0.0);
-    graLayer.startPoint = CGPointMake(0.5, 1.0);
+    graLayer.endPoint = CGPointMake(0.5, 1.0);
     graLayer.locations = [NSArray arrayWithObjects:
                           (id)[UIColor colorWithRed:0 green:0 blue:0 alpha:1.0].CGColor,
                           (id)[UIColor colorWithRed:0.6 green:0.6 blue:0.6 alpha:1.0].CGColor,
                           nil];
-    
+
     //ボタン同時押し禁止
     freeLineButton.exclusiveTouch = YES;
     lineButton.exclusiveTouch = YES;
@@ -55,29 +56,49 @@
     loadButton.exclusiveTouch = YES;
     saveButton.exclusiveTouch = YES;
     
-    //消去ボタン
-    UIImage* image;
-    image = [ToolAreaView createButtonImage:clearButton.frame.size
-                                              Radius:10
-                                            isShadow:YES
-                                        BaseRGBColor:[UIColor redColor]];
     
-    //読み込みボタン
-    image = [ToolAreaView createButtonImage:loadButton.frame.size
-                                     Radius:10
-                                   isShadow:YES
-                               BaseRGBColor:[UIColor whiteColor]];
-    [loadButton setBackgroundImage:image forState:UIControlStateNormal];
     
-    //保存ボタン
-    image = [ToolAreaView createButtonImage:saveButton.frame.size
-                                     Radius:10
-                                   isShadow:YES
-                               BaseRGBColor:[UIColor whiteColor]];
-    [loadButton setBackgroundImage:image forState:UIControlStateNormal];
+    //この下でエラー発生
     
-    //デフォルトでフリーラインを選択
-    [self toolSelectAction:freeLineButton];
+    /*-------------------------*/
+    
+    
+	UIImage*	image;
+    
+//	//消去ボタン
+//	image = [ToolAreaView createButtonImage:clearButton.frame.size
+//									 Radius:10
+//								   isShadow:YES
+//							   BaseRGBColor:[UIColor redColor]];
+//	[clearButton setBackgroundImage:image forState:UIControlStateNormal];
+//	//読み込みボタン
+//	image = [ToolAreaView createButtonImage:loadButton.frame.size
+//									 Radius:10
+//								   isShadow:YES
+//							   BaseRGBColor:[UIColor whiteColor]];
+//	[loadButton setBackgroundImage:image forState:UIControlStateNormal];
+//	//保存ボタン
+//	image = [ToolAreaView createButtonImage:saveButton.frame.size
+//									 Radius:10
+//								   isShadow:YES
+//							   BaseRGBColor:[UIColor whiteColor]];
+//	[saveButton setBackgroundImage:image forState:UIControlStateNormal];
+//	
+	
+	//フリーラインを選択状態にしておく
+	[self toolSelectAction:freeLineButton];
+	
+	//カラーパレット
+	ColorPaletteView*	colPal;
+	colPal = [[ColorPaletteView alloc] initWithFrame:
+			  CGRectMake(0, 0,
+						 colorPalettBaseView.frame.size.width,
+						 colorPalettBaseView.frame.size.height)];
+	colPal.delegate = self;
+	[colorPalettBaseView addSubview:colPal];
+	colorPalettBaseView.backgroundColor = [UIColor clearColor];
+    
+    
 }
 
 //ツールを選択
@@ -95,7 +116,7 @@
     //ツールの変更をデリゲートに通知
     int tag = sender.tag;
     if ([delegate respondsToSelector:@selector(toolAreaViewToolSelect:Tool:)]) {
-        [delegate ToolAreaViewToolSelect:self Tool:tag];
+        [delegate toolAreaViewToolSelect:self Tool:tag];
     }
 }
 
@@ -103,15 +124,24 @@
 - (IBAction)clearAction:(UIButton *)sender
 {
     if ([delegate respondsToSelector:@selector(toolAreaViewClear:)]) {
-        [delegate toolAreaViewLoad:self];
+		[delegate toolAreaViewClear:self];
     }
+}
+
+//保存
+- (IBAction)saveAction:(id)sender {
+	
+	//デリゲートに通知
+	if([delegate respondsToSelector:@selector(toolAreaViewSave:)]){
+		[delegate toolAreaViewSave:self];
+	}
 }
 
 //読み込み
 - (IBAction)loadAction:(UIButton *)sender
 {
     if ([delegate respondsToSelector:@selector(toolAreaViewSave:)]) {
-        [delegate toolAreaViewLoad:self];
+		[delegate toolAreaViewLoad:self];
     }
 }
 
@@ -119,10 +149,21 @@
 - (IBAction)penSizeSliderAction:(UISlider *)sender
 {
     float value = sender.value;
-    if ([delegate respondsToSelector:@selector(toolAreaViewPenSize:PenSize:)]) {
-        [delegate toolAreaViewPenSize:self PenSize:value];
+    if([delegate respondsToSelector:@selector(toolAreaViewSave:)]){
+		[delegate toolAreaViewPenSize:self PenSize:value];
+	}
+
+}
+
+
+//描画
+- (void)colorPalettColorSelected:(id)sender Color:(UIColor *)color
+{
+    if ([delegate respondsToSelector:@selector(toolAreaViewDrawColor:DrawColor:)]) {
+        [delegate toolAreaViewDrawColor:self DrawColor:color];
     }
 }
+
 
 /**************************
  * クラスメソッドによるボタン生成

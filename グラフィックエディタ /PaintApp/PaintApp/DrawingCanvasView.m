@@ -8,11 +8,22 @@
 
 #import "DrawingCanvasView.h"
 
+@interface DrawingCanvasView(){
+    CGPoint _startPt;
+}
+
+@property (strong, nonatomic)DrawingCanvasView* overDrawView;
+
+@end
+
+
 @implementation DrawingCanvasView
+
 @synthesize drawContext;
 @synthesize lineWidth;
 @synthesize drawType;
 @synthesize drawColor;
+@synthesize overDrawView;
 
 - (id) initWithFrame:(CGRect)frame
 {
@@ -78,23 +89,89 @@
     UITouch* touch = [touches anyObject];
     CGPoint pt = [touch locationInView:self];
     CGPoint prvPt = [touch previousLocationInView:self];
-    //グラフィックコンテキスト
-    CGContextSaveGState(drawContext);
-    //上下反転
-    CGContextTranslateCTM(drawContext, 0, self.frame.size.height);
-    CGContextScaleCTM(drawContext, 1, -1);
-    //描画
-    CGContextBeginPath(drawContext);
-    CGContextMoveToPoint(drawContext, prvPt.x, prvPt.y);
-    CGContextAddLineToPoint(drawContext, pt.x, pt.y);
-    CGContextStrokePath(drawContext);
-    //グラフィックコンテキスト復元
-    CGContextRestoreGState(drawContext);
-    //グラフィックコンテキストのレンダリング
-    [self renderImage];
+    
+    /*--------------------------------*/
+    
+    switch (drawType) {
+        case 0:
+        {
+            
+        }break;
+            
+        case 1:
+        case 2:
+        case 3:
+        {
+            [self.overDrawView clear];
+            CGContextRef context = self.overDrawView.drawContext;
+            CGContextSaveGState(context);
+            CGContextTranslateCTM(context, 0, self.frame.size.height);
+            CGContextScaleCTM(context, 1, -1);
+            CGContextBeginPath(context);
+            
+            if (drawType==1) {
+                CGContextMoveToPoint(context, _startPt.x, _startPt.y);
+                CGContextAddLineToPoint(context, pt.x, pt.y);
+                CGContextStrokePath(context);
+            } else if (drawType==2){
+                float x = MIN(_startPt.x, pt.x);
+                float y = MIN(_startPt.y, pt.y);
+                int w = abs(_startPt.x-pt.x);
+                int h = abs(_startPt.y-pt.y);
+                
+                CGRect rect = CGRectMake(x, y, w, h);
+                CGContextAddRect(context, rect);
+                CGContextFillPath(context);
+            }
+            CGContextRestoreGState(context);
+            [self.overDrawView renderImage];
+        }break;
+        case 4:
+        {
+            
+        }break;
+    }
 }
 
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    if (self.overDrawView) {
+        CGImageRef cgImage;
+        cgImage = CGBitmapContextCreateImage(self.overDrawView.drawContext);
+        
+        CGContextDrawImage(drawContext, CGRectMake(0, 0, self.frame.size.width, self.frame.size.height), cgImage);
+        [self renderImage];
+        
+        CGImageRelease(cgImage);
+        [self.overDrawView removeFromSuperview];
+        self.overDrawView = nil;
+    }
+}
 
-
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+	//メニューを非表示
+	UIMenuController*	menu = [UIMenuController sharedMenuController];
+	if([menu isMenuVisible]){
+		[menu setMenuVisible:NO animated:YES];
+		return;
+	}
+    
+    UITouch* touch = [touches anyObject];
+    _startPt = [touch locationInView:self];
+    
+    switch (drawType) {
+        case 1:
+        case 2:
+        case 3:
+        {
+            self.overDrawView = [[DrawingCanvasView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
+            self.overDrawView.userInteractionEnabled = NO;
+            self.overDrawView.lineWidth = lineWidth;
+            self.overDrawView.drawColor = drawColor;
+            [self addSubview:overDrawView];
+        }break;
+    }
+}
 
 @end

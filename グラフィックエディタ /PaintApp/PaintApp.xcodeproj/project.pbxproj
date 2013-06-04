@@ -20,8 +20,9 @@
 		8A3A3814175C29AC00AFA1EE /* ViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8A3A3812175C29AC00AFA1EE /* ViewController.xib */; };
 		8A3A381B175C29CC00AFA1EE /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8A3A381A175C29CC00AFA1EE /* QuartzCore.framework */; };
 		8A3A381E175C2AE500AFA1EE /* DrawingCanvasView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8A3A381D175C2AE500AFA1EE /* DrawingCanvasView.m */; };
-		8A3A3821175C4CFC00AFA1EE /* ToolAreaView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8A3A3820175C4CFC00AFA1EE /* ToolAreaView.m */; };
 		8A3A3823175C4D2B00AFA1EE /* ToolAreaView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8A3A3822175C4D2B00AFA1EE /* ToolAreaView.xib */; };
+		8AA36794175D873700CB63CD /* ToolAreaView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8A3A3820175C4CFC00AFA1EE /* ToolAreaView.m */; };
+		8AA36797175DAFCF00CB63CD /* ColorPalettView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8AA36796175DAFCF00CB63CD /* ColorPalettView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -47,6 +48,8 @@
 		8A3A381F175C4CFC00AFA1EE /* ToolAreaView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ToolAreaView.h; sourceTree = "<group>"; };
 		8A3A3820175C4CFC00AFA1EE /* ToolAreaView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ToolAreaView.m; sourceTree = "<group>"; };
 		8A3A3822175C4D2B00AFA1EE /* ToolAreaView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ToolAreaView.xib; sourceTree = "<group>"; };
+		8AA36795175DAFCF00CB63CD /* ColorPalettView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ColorPalettView.h; sourceTree = "<group>"; };
+		8AA36796175DAFCF00CB63CD /* ColorPalettView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ColorPalettView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -105,6 +108,8 @@
 				8A3A381F175C4CFC00AFA1EE /* ToolAreaView.h */,
 				8A3A3820175C4CFC00AFA1EE /* ToolAreaView.m */,
 				8A3A3822175C4D2B00AFA1EE /* ToolAreaView.xib */,
+				8AA36795175DAFCF00CB63CD /* ColorPalettView.h */,
+				8AA36796175DAFCF00CB63CD /* ColorPalettView.m */,
 				8A3A37FE175C29AC00AFA1EE /* Supporting Files */,
 			);
 			path = PaintApp;
@@ -195,7 +200,8 @@
 				8A3A3808175C29AC00AFA1EE /* AppDelegate.m in Sources */,
 				8A3A3811175C29AC00AFA1EE /* ViewController.m in Sources */,
 				8A3A381E175C2AE500AFA1EE /* DrawingCanvasView.m in Sources */,
-				8A3A3821175C4CFC00AFA1EE /* ToolAreaView.m in Sources */,
+				8AA36794175D873700CB63CD /* ToolAreaView.m in Sources */,
+				8AA36797175DAFCF00CB63CD /* ColorPalettView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -318,6 +324,7 @@
 				8A3A3819175C29AC00AFA1EE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

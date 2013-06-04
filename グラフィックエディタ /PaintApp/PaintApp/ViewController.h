@@ -12,11 +12,6 @@
 
 @interface ViewController : UIViewController
 @property (strong, nonatomic) DrawingCanvasView* canvas;
-
-
-- (void)toolAreaViewLoad:(ToolAreaView *)toolView;
-- (void)toolAreaViewToolSelect:(ToolAreaView *)toolView Tool:(int)toolnum;
-- (void)toolAreaViewPenSize:(ToolAreaView *)toolView Pensize:(float)pensize;
-- (IBAction)penSizeSliderAction:(UISlider *)sender;
+@property (strong, nonatomic) ToolAreaView*		toolView;
 
 @end
