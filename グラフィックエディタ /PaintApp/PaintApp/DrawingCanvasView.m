@@ -7,12 +7,16 @@
 //
 
 #import "DrawingCanvasView.h"
+#import "SelectionAreaView.h"
 
 @interface DrawingCanvasView(){
     CGPoint _startPt;
+    BOOL _isTouchMoved;
+    BOOL _isSelectionDragging;
 }
 
 @property (strong, nonatomic)DrawingCanvasView* overDrawView;
+@property (strong, nonatomic)SelectionAreaView* selectionView;
 
 @end
 
@@ -24,6 +28,7 @@
 @synthesize drawType;
 @synthesize drawColor;
 @synthesize overDrawView;
+@synthesize selectionView;
 
 - (id) initWithFrame:(CGRect)frame
 {
@@ -90,12 +95,27 @@
     CGPoint pt = [touch locationInView:self];
     CGPoint prvPt = [touch previousLocationInView:self];
     
-    /*--------------------------------*/
+    _isTouchMoved = YES;
     
     switch (drawType) {
         case 0:
         {
+            CGContextSaveGState(drawContext);
+            CGContextTranslateCTM(drawContext, 0, self.frame.size.height);
+            CGContextScaleCTM(drawContext, 1, -1);
             
+            if (self.selectionView) {
+                CGContextAddPath(drawContext, self.selectionView.selectionPath.CGPath);
+                CGContextClip(drawContext);
+            }
+            
+            CGContextBeginPath(drawContext);
+            CGContextMoveToPoint(drawContext, prvPt.x, prvPt.y);
+            CGContextAddLineToPoint(drawContext, pt.x, pt.y);
+            CGContextStrokePath(drawContext);
+            
+            CGContextRestoreGState(drawContext);
+            [self renderImage];
         }break;
             
         case 1:
@@ -128,7 +148,25 @@
         }break;
         case 4:
         {
-            
+            if (_isSelectionDragging) {
+                CGPoint offset = CGPointMake(pt.x-prvPt.x, pt.y-prvPt.y);
+                [self.selectionView selectionOffset:offset];
+            } else {
+                if (self.selectionView) {
+                    [selectionView removeFromSuperview];
+                    self.selectionView = [[SelectionAreaView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
+                    [self addSubview:selectionView];
+                }
+                
+                float x = MIN(_startPt.x, pt.x);
+                float y = MIN(_startPt.y, pt.y);
+                int w = abs(_startPt.x-pt.x);
+                int h = abs(_startPt.y-pt.y);
+                
+                CGRect rect = CGRectMake(x, y, w, h);
+                UIBezierPath* path = [UIBezierPath bezierPathWithRect:rect];
+                selectionView.selectionPath = path;
+            }
         }break;
     }
 }
@@ -146,6 +184,15 @@
         [self.overDrawView removeFromSuperview];
         self.overDrawView = nil;
     }
+    
+    if (self.selectionView) {
+        if (![selectionView containsPoint:_startPt]) {
+            if (!_isTouchMoved) {
+                [selectionView removeFromSuperview];
+                self.selectionView = nil;
+            }
+        }
+    }
 }
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
@@ -160,7 +207,15 @@
     UITouch* touch = [touches anyObject];
     _startPt = [touch locationInView:self];
     
+    _isTouchMoved = NO;
+    _isSelectionDragging = NO;
+    
     switch (drawType) {
+        case 0:
+        {
+            
+        }break;
+    
         case 1:
         case 2:
         case 3:
@@ -171,7 +226,24 @@
             self.overDrawView.drawColor = drawColor;
             [self addSubview:overDrawView];
         }break;
+        
+        case 4:
+        {
+            if (self.selectionView==nil) {
+                self.selectionView = [[SelectionAreaView alloc] initWithFrame:CGRectMake(0,
+                                                                                        0,
+                                                                                        self.frame.size.width,
+                                                                                        self.frame.size.height)];
+            [self addSubview:selectionView];
+            } else {
+                if ([selectionView containsPoint:_startPt]) {
+                    _isSelectionDragging = YES;
+                }
+            }
+        }break;
     }
 }
+
+
 
 @end
